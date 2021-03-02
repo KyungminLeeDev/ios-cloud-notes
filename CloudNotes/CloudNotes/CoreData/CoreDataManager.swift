@@ -36,4 +36,16 @@ class CoreDataManager {
             }
         }
     }
+    
+    func fetchMemo() {
+        if let context = context {
+            let request = NSFetchRequest<NSManagedObject>(entityName: memoEntityName)
+            
+            do {
+                memoList = try context.fetch(request)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
 }
