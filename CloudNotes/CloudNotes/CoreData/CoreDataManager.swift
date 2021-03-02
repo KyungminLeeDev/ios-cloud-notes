@@ -64,7 +64,7 @@ class CoreDataManager {
             do {
                 try context.save()
                 fetchMemo()
-//                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
+                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
             } catch {
                 print(error.localizedDescription)
             }
@@ -80,7 +80,7 @@ class CoreDataManager {
             do {
                 try context.save()
                 fetchMemo()
-//                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
+                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
             } catch {
                 print(error.localizedDescription)
                 context.rollback()

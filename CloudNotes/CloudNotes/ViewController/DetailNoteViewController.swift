@@ -111,10 +111,12 @@ class DetailNoteViewController: UIViewController {
         if text.count == 1 {
             let titleText = String(text[0])
             CoreDataManager.shared.saveMemo(title: titleText, body: UIConstants.strings.textInitalizing)
+//            return Memo(context: <#T##NSManagedObjectContext#>)
         } else {
             let titleText = String(text[0])
             let bodyText = String(text[1])
             CoreDataManager.shared.saveMemo(title: titleText, body: bodyText)
+//            return
         }
     }
 }
