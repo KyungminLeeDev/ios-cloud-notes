@@ -48,4 +48,18 @@ class CoreDataManager {
             }
         }
     }
+    
+    func deleteMemo(object: NSManagedObject) {
+        if let context = context{
+            context.delete(object)
+            
+            do {
+                try context.save()
+                fetchMemo()
+                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
 }
