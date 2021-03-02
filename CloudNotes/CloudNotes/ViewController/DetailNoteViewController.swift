@@ -84,36 +84,34 @@ class DetailNoteViewController: UIViewController {
     }
     
     private func saveNote() {
-        let note: Note
         if detailNoteTextView.text == UIConstants.strings.textInitalizing {
-            note = Note(title: UIConstants.strings.emptyNoteTitleText, body: UIConstants.strings.textInitalizing)
+            CoreDataManager.shared.saveMemo(title: UIConstants.strings.emptyNoteTitleText, body: UIConstants.strings.textInitalizing)
         } else {
             let textViewText = detailNoteTextView.text.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
-            note = checkTextView(text: textViewText)
+            checkTextView(text: textViewText)
         }
-        
-        if let fetchedNote = self.fetchedNote {
-            fetchedNote.title = note.title
-            fetchedNote.body = note.body
-            fetchedNote.lastModifiedDate = note.lastModifiedDate
-        } else {
-            NoteData.shared.add(note: note)
-            self.fetchedNote = note
-        }
+
+//        if let fetchedNote = self.fetchedNote {
+//            fetchedNote.title = note.title
+//            fetchedNote.body = note.body
+//            fetchedNote.lastModifiedDate = note.lastModifiedDate
+//        } else {
+//            NoteData.shared.add(note: note)
+//            self.fetchedNote = note
+//        }
         
         NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
     }
     
-    private func checkTextView(text: [String.SubSequence]) -> Note {
+    private func checkTextView(text: [String.SubSequence]) {
+        //저장하는 역할까지 하고있음 개선필요
         if text.count == 1 {
             let titleText = String(text[0])
-            let note = Note(title: titleText, body: UIConstants.strings.textInitalizing)
-            return note
+            CoreDataManager.shared.saveMemo(title: titleText, body: UIConstants.strings.textInitalizing)
         } else {
             let titleText = String(text[0])
             let bodyText = String(text[1])
-            let note = Note(title: titleText, body: bodyText)
-            return note
+            CoreDataManager.shared.saveMemo(title: titleText, body: bodyText)
         }
     }
 }

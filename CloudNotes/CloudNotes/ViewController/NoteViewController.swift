@@ -70,21 +70,19 @@ class NoteViewController: UIViewController {
 // MARK: - TableView DataSource
 extension NoteViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return NoteData.shared.count
+        return CoreDataManager.shared.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: NotesTableViewCell.identifier, for: indexPath) as? NotesTableViewCell else {
             return UITableViewCell()
         }
-        
-        cell.titleLabel.text = NoteData.shared.title(index: indexPath.row)
-        cell.bodyLabel.text = NoteData.shared.body(index: indexPath.row)
+        let memo = CoreDataManager.shared.memoList[indexPath.row]
+        cell.titleLabel.text = memo.value(forKey: "title") as? String
+        cell.bodyLabel.text = memo.value(forKey: "body") as? String
         cell.bodyLabel.textColor = .gray
-        if let lastModifiedDate = NoteData.shared.lastModifiedDate(index: indexPath.row) {
-            cell.lastModifiedDateLabel.text = dateFormatter.string(from: lastModifiedDate)
-        }
-        
+        let lastModifiedDate = memo.value(forKey: "lastModifiedDate") as! Date
+        cell.lastModifiedDateLabel.text = dateFormatter.string(from: lastModifiedDate)
         return cell
     }
 }
