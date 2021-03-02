@@ -20,6 +20,14 @@ class CoreDataManager {
         return memoList.count
     }
     
+    func note(index: Int) -> NSManagedObject? {
+        guard memoList.count > index, index >= 0 else {
+            return nil
+        }
+        
+        return memoList[index]
+    }
+    
     func saveMemo(title: String, body: String) {
         if let context = context, let entity = NSEntityDescription.entity(forEntityName: memoEntityName, in: context) {
             let memo = NSManagedObject(entity: entity, insertInto: context)
@@ -56,9 +64,26 @@ class CoreDataManager {
             do {
                 try context.save()
                 fetchMemo()
-                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
+//                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
             } catch {
                 print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func updateMemo(object: NSManagedObject, title: String, body: String) {
+        if let context = context{
+            object.setValue(title, forKey: "title")
+            object.setValue(body, forKey: "body")
+            object.setValue(Date(), forKey: "lastModifiedDate")
+            
+            do {
+                try context.save()
+                fetchMemo()
+//                NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
+            } catch {
+                print(error.localizedDescription)
+                context.rollback()
             }
         }
     }

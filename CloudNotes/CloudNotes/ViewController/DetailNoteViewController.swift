@@ -6,11 +6,12 @@
 //
 
 import UIKit
+import CoreData
 
 class DetailNoteViewController: UIViewController {
     static let memoDidSave = Notification.Name(rawValue: "memoDidSave")
     
-    var fetchedNote: Note?
+    var fetchedNote: NSManagedObject?
     private let detailNoteTextView = UITextView()
     private let completeButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.done, target: self, action: #selector(touchUpCompleteButton))
     private let moreButton: UIBarButtonItem = {
@@ -53,8 +54,9 @@ class DetailNoteViewController: UIViewController {
         guard let noteData = fetchedNote else {
             return
         }
-        
-        detailNoteTextView.text = "\(noteData.title)\n\(noteData.body)"
+        let title: String = noteData.value(forKey: "title") as! String
+        let body: String = noteData.value(forKey: "body") as! String
+        detailNoteTextView.text = "\(title)\n\(body)"
     }
     
     @objc private func touchUpCompleteButton() {
@@ -91,14 +93,15 @@ class DetailNoteViewController: UIViewController {
             checkTextView(text: textViewText)
         }
 
-//        if let fetchedNote = self.fetchedNote {
-//            fetchedNote.title = note.title
-//            fetchedNote.body = note.body
-//            fetchedNote.lastModifiedDate = note.lastModifiedDate
-//        } else {
-//            NoteData.shared.add(note: note)
+        if let fetchedNote = self.fetchedNote {
+            let title: String = fetchedNote.value(forKey: "title") as! String
+            let body: String = fetchedNote.value(forKey: "body") as! String
+            CoreDataManager.shared.updateMemo(object: fetchedNote, title: title, body: body)
+        } else {
+            // 이 경우에 대해서 좀 더 생각해보기!
+//            CoreDataManager.shared.saveMemo(title: <#T##String#>, body: <#T##String#>)
 //            self.fetchedNote = note
-//        }
+        }
         
         NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
     }
