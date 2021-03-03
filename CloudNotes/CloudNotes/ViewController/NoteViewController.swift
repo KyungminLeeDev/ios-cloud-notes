@@ -86,6 +86,15 @@ extension NoteViewController: UITableViewDataSource {
         cell.lastModifiedDateLabel.text = dateFormatter.string(from: lastModifiedDate)
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            guard let memo = CoreDataManager.shared.note(index: indexPath.row) else {
+                return
+            }
+            CoreDataManager.shared.delete(memo: memo)
+        }
+    }
 }
 
 // MARK: - TableView Delegate
@@ -93,7 +102,6 @@ extension NoteViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let detailNoteViewController = DetailNoteViewController()
         detailNoteViewController.fetchedNote = CoreDataManager.shared.note(index: indexPath.row)
-        detailNoteViewController.index = indexPath.row
         let navigationController = UINavigationController(rootViewController: detailNoteViewController)
         splitViewController?.showDetailViewController(navigationController, sender: nil)
     }
