@@ -15,39 +15,41 @@ class CoreDataManager {
     private let appDelegate = UIApplication.shared.delegate as? AppDelegate
     lazy var context = appDelegate?.persistentContainer.viewContext
     private let memoEntityName = "Memo"
-    var memoList: [NSManagedObject] = []
+    var memoList: [Memo] = []
     var count: Int {
         return memoList.count
     }
     
-    func note(index: Int) -> NSManagedObject? {
+    func note(index: Int) -> Memo? {
         guard memoList.count > index, index >= 0 else {
             return nil
         }
         
         return memoList[index]
     }
-    
-    func saveMemo(title: String, body: String) {
+
+    func saveMemo(title: String, body: String) -> Memo? {
         if let context = context, let entity = NSEntityDescription.entity(forEntityName: memoEntityName, in: context) {
-            let memo = NSManagedObject(entity: entity, insertInto: context)
+            let memo = Memo(entity: entity, insertInto: context)
             memo.setValue(title, forKey: "title")
             memo.setValue(body, forKey: "body")
             memo.setValue(Date(), forKey: "lastModifiedDate")
             
             do {
                 try context.save()
-                memoList.insert(memo, at: 0)
+                memoList.append(memo)
             } catch {
                 print(error.localizedDescription)
                 context.rollback()
             }
+            return memo
         }
+        return nil
     }
     
     func fetchMemo() {
         if let context = context {
-            let request = NSFetchRequest<NSManagedObject>(entityName: memoEntityName)
+            let request = NSFetchRequest<Memo>(entityName: memoEntityName)
             
             do {
                 memoList = try context.fetch(request)
@@ -57,9 +59,9 @@ class CoreDataManager {
         }
     }
     
-    func deleteMemo(object: NSManagedObject) {
+    func delete(memo: Memo) {
         if let context = context{
-            context.delete(object)
+            context.delete(memo)
             
             do {
                 try context.save()
@@ -71,11 +73,11 @@ class CoreDataManager {
         }
     }
     
-    func updateMemo(object: NSManagedObject, title: String, body: String) {
+    func update(memo: Memo, title: String, body: String) {
         if let context = context{
-            object.setValue(title, forKey: "title")
-            object.setValue(body, forKey: "body")
-            object.setValue(Date(), forKey: "lastModifiedDate")
+            memo.title = title
+            memo.body = body
+            memo.lastModifiedDate = Date()
             
             do {
                 try context.save()

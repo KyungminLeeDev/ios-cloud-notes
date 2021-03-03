@@ -93,7 +93,7 @@ extension NoteViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let detailNoteViewController = DetailNoteViewController()
         detailNoteViewController.fetchedNote = CoreDataManager.shared.note(index: indexPath.row)
-//        detailNoteViewController.fetchedNote = NoteData.shared.note(index: indexPath.row)
+        detailNoteViewController.index = indexPath.row
         let navigationController = UINavigationController(rootViewController: detailNoteViewController)
         splitViewController?.showDetailViewController(navigationController, sender: nil)
     }

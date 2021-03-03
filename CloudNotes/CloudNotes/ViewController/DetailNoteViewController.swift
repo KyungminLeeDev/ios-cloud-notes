@@ -11,7 +11,7 @@ import CoreData
 class DetailNoteViewController: UIViewController {
     static let memoDidSave = Notification.Name(rawValue: "memoDidSave")
     
-    var fetchedNote: NSManagedObject?
+    var fetchedNote: Memo?
     private let detailNoteTextView = UITextView()
     private let completeButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.done, target: self, action: #selector(touchUpCompleteButton))
     private let moreButton: UIBarButtonItem = {
@@ -51,11 +51,10 @@ class DetailNoteViewController: UIViewController {
     }
     
     private func setTextViewFromFetchedNote() {
-        guard let noteData = fetchedNote else {
+        guard let memo = fetchedNote, let title = memo.title, let body = memo.body else {
             return
         }
-        let title: String = noteData.value(forKey: "title") as! String
-        let body: String = noteData.value(forKey: "body") as! String
+        
         detailNoteTextView.text = "\(title)\n\(body)"
     }
     
@@ -80,44 +79,43 @@ class DetailNoteViewController: UIViewController {
         detailNoteTextView.isEditable.toggle()
         if detailNoteTextView.isEditable {
             detailNoteTextView.becomeFirstResponder()
-        } else {
-            saveNote()
         }
     }
     
     private func saveNote() {
-        if detailNoteTextView.text == UIConstants.strings.textInitalizing {
-            CoreDataManager.shared.saveMemo(title: UIConstants.strings.emptyNoteTitleText, body: UIConstants.strings.textInitalizing)
-        } else {
-            let textViewText = detailNoteTextView.text.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
-            checkTextView(text: textViewText)
-        }
-
+        let noteTexts: (title: String, body: String)
+        noteTexts = divdeTextForNote(text: detailNoteTextView.text)
+        
         if let fetchedNote = self.fetchedNote {
-            let title: String = fetchedNote.value(forKey: "title") as! String
-            let body: String = fetchedNote.value(forKey: "body") as! String
-            CoreDataManager.shared.updateMemo(object: fetchedNote, title: title, body: body)
+            if (fetchedNote.title != noteTexts.title) || (fetchedNote.body != noteTexts.body) {
+                CoreDataManager.shared.update(memo: fetchedNote, title: noteTexts.title, body: noteTexts.body)
+            }
         } else {
-            // 이 경우에 대해서 좀 더 생각해보기!
-//            CoreDataManager.shared.saveMemo(title: <#T##String#>, body: <#T##String#>)
-//            self.fetchedNote = note
+            self.fetchedNote = CoreDataManager.shared.saveMemo(title: noteTexts.title, body: noteTexts.body)
         }
         
         NotificationCenter.default.post(name: DetailNoteViewController.memoDidSave, object: nil)
     }
     
-    private func checkTextView(text: [String.SubSequence]) {
-        //저장하는 역할까지 하고있음 개선필요
-        if text.count == 1 {
-            let titleText = String(text[0])
-            CoreDataManager.shared.saveMemo(title: titleText, body: UIConstants.strings.textInitalizing)
-//            return Memo(context: <#T##NSManagedObjectContext#>)
-        } else {
-            let titleText = String(text[0])
-            let bodyText = String(text[1])
-            CoreDataManager.shared.saveMemo(title: titleText, body: bodyText)
-//            return
+    private func divdeTextForNote(text: String) -> (title: String, body: String) {
+        let noteTexts: (title: String, body: String)
+        
+        guard text != UIConstants.strings.textInitalizing else {
+            noteTexts.title = UIConstants.strings.emptyNoteTitleText
+            noteTexts.body = UIConstants.strings.textInitalizing
+            return noteTexts
         }
+        
+        let splitedText = detailNoteTextView.text.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true)
+        if splitedText.count == 1 {
+            noteTexts.title = String(splitedText[0])
+            noteTexts.body = UIConstants.strings.textInitalizing
+        } else {
+            noteTexts.title = String(splitedText[0])
+            noteTexts.body = String(splitedText[1])
+        }
+        
+        return noteTexts
     }
 }
 
