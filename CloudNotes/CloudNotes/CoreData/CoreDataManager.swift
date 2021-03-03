@@ -59,8 +59,8 @@ class CoreDataManager {
         }
     }
     
-    func delete(memo: Memo) {
-        if let context = context{
+    func delete(index: Int) {
+        if let context = context, let memo = CoreDataManager.shared.note(index: index) {
             context.delete(memo)
             
             do {

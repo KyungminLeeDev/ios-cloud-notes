@@ -11,24 +11,31 @@ class NotesTableViewCell: UITableViewCell {
     static var identifier: String {
         return "\(self)"
     }
-    let titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = .preferredFont(forTextStyle: .headline)
         return titleLabel
     }()
-    let lastModifiedDateLabel: UILabel = {
+    private let lastModifiedDateLabel: UILabel = {
         let lastModifiedDateLabel = UILabel()
         lastModifiedDateLabel.translatesAutoresizingMaskIntoConstraints = false
         lastModifiedDateLabel.font = .preferredFont(forTextStyle: .caption1)
         return lastModifiedDateLabel
     }()
-    let bodyLabel: UILabel = {
+    private let bodyLabel: UILabel = {
         let bodyLabel = UILabel()
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
         bodyLabel.font = .preferredFont(forTextStyle: .caption1)
         bodyLabel.textColor = .gray
         return bodyLabel
+    }()
+    private let dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .none
+        dateFormatter.locale = Locale.current
+        return dateFormatter
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -61,6 +68,16 @@ class NotesTableViewCell: UITableViewCell {
         
         lastModifiedDateLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         bodyLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+    }
+    
+    func configureCell(index: Int) {
+        let memo = CoreDataManager.shared.memoList[index]
+        titleLabel.text = memo.title
+        bodyLabel.text = memo.body
+        bodyLabel.textColor = .gray
+        if let lastModifiedDate = memo.lastModifiedDate {
+            lastModifiedDateLabel.text = dateFormatter.string(from: lastModifiedDate)
+        }
     }
     
     override func prepareForReuse() {

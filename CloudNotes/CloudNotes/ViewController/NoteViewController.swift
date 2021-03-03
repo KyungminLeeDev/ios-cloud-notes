@@ -8,13 +8,6 @@ import UIKit
 
 class NoteViewController: UIViewController {
     private let tableView = UITableView()
-    private let dateFormatter: DateFormatter = {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        dateFormatter.timeStyle = .none
-        dateFormatter.locale = Locale.current
-        return dateFormatter
-    }()
     private var memoDidSaveToken: NSObjectProtocol?
     
     deinit {
@@ -78,21 +71,13 @@ extension NoteViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: NotesTableViewCell.identifier, for: indexPath) as? NotesTableViewCell else {
             return UITableViewCell()
         }
-        let memo = CoreDataManager.shared.memoList[indexPath.row]
-        cell.titleLabel.text = memo.value(forKey: "title") as? String
-        cell.bodyLabel.text = memo.value(forKey: "body") as? String
-        cell.bodyLabel.textColor = .gray
-        let lastModifiedDate = memo.value(forKey: "lastModifiedDate") as! Date
-        cell.lastModifiedDateLabel.text = dateFormatter.string(from: lastModifiedDate)
+        cell.configureCell(index: indexPath.row)
         return cell
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            guard let memo = CoreDataManager.shared.note(index: indexPath.row) else {
-                return
-            }
-            CoreDataManager.shared.delete(memo: memo)
+            CoreDataManager.shared.delete(index: indexPath.row)
         }
     }
 }
